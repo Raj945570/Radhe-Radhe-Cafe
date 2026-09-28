@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Chef Hat -->
+  <path d="M25 45 C20 30 35 20 45 28 C50 18 65 18 70 28 C80 20 95 30 90 45 L90 52 L25 52 Z M28 52 L87 52" />
+  <!-- Leaves / Basil -->
+  <path d="M140 30 Q160 20 170 35 Q180 55 160 55 Q145 55 140 30 Z M140 30 L165 45" />
+  <path d="M135 45 Q120 55 125 70 Q145 75 145 55 Z" />
+  <!-- Spoon & Fork Crossed -->
+  <path d="M30 140 L65 175 M65 140 L30 175" />
+  <path d="M60 135 C65 130 70 135 68 142 L65 145 L58 138 Z" />
+  <!-- Chili Pepper -->
+  <path d="M150 130 Q170 135 175 155 Q175 175 155 180 Q145 170 152 150 Z M150 130 L145 122" />
+  <!-- Tea / Coffee Cup with Steam -->
+  <path d="M90 145 L85 170 Q85 178 98 178 L112 178 Q125 178 125 170 L120 145 Z M121 150 Q132 150 132 160 Q132 170 120 170" />
+  <path d="M96 138 Q99 133 96 128 M105 138 Q108 133 105 128 M114 138 Q117 133 114 128" />
+  <!-- Small Bowl with Steam -->
+  <path d="M145 80 Q160 100 175 80 Z M152 75 Q155 70 152 65 M162 75 Q165 70 162 65 M172 75 Q175 70 172 65" />
+  <!-- Spices & Dots -->
+  <circle cx="95" cy="50" r="2.5" />
+  <circle cx="102" cy="42" r="1.5" />
+  <circle cx="88" cy="42" r="1.5" />
+  <circle cx="28" cy="95" r="2" />
+  <circle cx="175" cy="105" r="2.5" />
+  <circle cx="70" cy="105" r="3" />
+</svg>

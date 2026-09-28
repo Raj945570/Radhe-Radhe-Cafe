@@ -1,0 +1,212 @@
+import React, { useState } from 'react';
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Utensils } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import OrderSummaryModal from './OrderSummaryModal';
+
+export default function CartModal() {
+  const {
+    cartItems,
+    isCartOpen,
+    closeCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    subtotal,
+    grandTotal,
+  } = useCart();
+
+  const [isOrderSummaryOpen, setIsOrderSummaryOpen] = useState(false);
+
+  if (!isCartOpen) return null;
+
+  return (
+    <>
+      <div
+        id="cart-modal-backdrop"
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm transition-opacity duration-300"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) closeCart();
+        }}
+      >
+        <div
+          id="cart-modal-container"
+          className="relative w-full max-w-lg bg-white border border-stone-200 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden animate-slide-up"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 bg-[#FAFAFA]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-extrabold text-lg text-stone-900 font-['Outfit']">
+                  Your Order Cart
+                </h2>
+                <p className="text-xs text-red-600 font-medium font-hindi-body">
+                  {cartItems.length} {cartItems.length === 1 ? 'व्यंजन' : 'व्यंजन'} चुने गए
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {cartItems.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  id="cart-clear-btn"
+                  className="text-xs text-stone-500 hover:text-red-600 font-bold transition px-2 py-1"
+                >
+                  Clear All
+                </button>
+              )}
+              <button
+                onClick={closeCart}
+                id="cart-modal-close-btn"
+                aria-label="Close cart"
+                className="w-8 h-8 rounded-full bg-white border border-stone-200 hover:bg-stone-100 text-stone-600 flex items-center justify-center transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Modal Body */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+            {cartItems.length === 0 ? (
+              /* Empty Cart State */
+              <div className="py-12 text-center space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto text-red-600">
+                  <ShoppingBag className="w-8 h-8 stroke-[1.5]" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-stone-900 font-hindi-body">
+                    आपकी कार्ट खाली है
+                  </h3>
+                  <p className="text-xs text-stone-500 max-w-xs mx-auto mt-1 font-hindi-body">
+                    मेन्यू से अपने पसंदीदा चाट, मोमोज, पिज्जा या शेक चुनें!
+                  </p>
+                </div>
+                <button
+                  onClick={closeCart}
+                  className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+                >
+                  मेन्यू देखें
+                </button>
+              </div>
+            ) : (
+              /* List of Selected Items */
+              <div className="space-y-2.5">
+                {cartItems.map((item) => (
+                  <div
+                    key={item.id}
+                    id={`cart-item-${item.id}`}
+                    className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-stone-200 shadow-xs hover:border-red-300 transition"
+                  >
+                    {/* Item Thumbnail (if available) */}
+                    {item.image && (
+                      <div className="w-14 h-14 rounded-xl overflow-hidden bg-stone-100 shrink-0 border border-stone-200">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+
+                    {/* Item Info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-sm text-stone-900 truncate font-hindi-body">
+                        {item.name}
+                      </h4>
+                      <p className="text-xs font-semibold text-stone-500 mt-0.5">
+                        ₹{item.price} {item.variant ? `(${item.variant})` : ''}
+                      </p>
+                    </div>
+
+                    {/* Quantity Modifier Buttons (+ / -) */}
+                    <div className="flex items-center gap-1.5 bg-stone-50 border border-stone-200 rounded-xl p-1 shrink-0">
+                      <button
+                        onClick={() => updateQuantity(item.id, -1)}
+                        id={`cart-minus-${item.id}`}
+                        aria-label="Decrease quantity"
+                        className="w-6 h-6 rounded-lg bg-white hover:bg-stone-200 text-red-600 flex items-center justify-center transition active:scale-90 shadow-2xs font-bold"
+                      >
+                        <Minus className="w-3 h-3 stroke-[2.5]" />
+                      </button>
+                      <span
+                        id={`cart-qty-${item.id}`}
+                        className="w-6 text-center font-black text-xs text-stone-900 font-['Outfit']"
+                      >
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.id, 1)}
+                        id={`cart-plus-${item.id}`}
+                        aria-label="Increase quantity"
+                        className="w-6 h-6 rounded-lg bg-red-600 hover:bg-red-700 text-white flex items-center justify-center transition active:scale-90 shadow-2xs"
+                      >
+                        <Plus className="w-3 h-3 stroke-[2.5]" />
+                      </button>
+                    </div>
+
+                    {/* Total item price */}
+                    <div className="text-right shrink-0 min-w-[50px]">
+                      <span className="font-extrabold text-sm text-stone-900 font-['Outfit'] block">
+                        ₹{item.price * item.quantity}
+                      </span>
+                      {/* Remove item button */}
+                      <button
+                        onClick={() => removeFromCart(item.id)}
+                        id={`cart-remove-${item.id}`}
+                        aria-label="Remove item"
+                        className="text-stone-400 hover:text-red-600 transition p-1 inline-flex items-center"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Cart Footer: Total Price Calculation & Place Order CTA */}
+          {cartItems.length > 0 && (
+            <div className="p-4 sm:p-5 border-t border-stone-100 bg-[#FAFAFA] space-y-3">
+              <div className="flex items-center justify-between text-xs text-stone-600">
+                <span>व्यंजनों का योग (Subtotal):</span>
+                <span className="font-bold text-stone-900 font-['Outfit']">₹{subtotal}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-base font-extrabold text-stone-900 pt-1 border-t border-stone-200">
+                <span>कुल राशि (Total Amount):</span>
+                <span className="text-xl font-black text-red-600 font-['Outfit']">
+                  ₹{grandTotal}
+                </span>
+              </div>
+
+              {/* "Place Order" Button */}
+              <button
+                onClick={() => setIsOrderSummaryOpen(true)}
+                id="cart-place-order-btn"
+                className="w-full py-3.5 px-6 rounded-xl bg-red-600 hover:bg-red-700 active:scale-95 text-white font-extrabold text-sm shadow-md transition-all flex items-center justify-between cursor-pointer"
+              >
+                <span>ऑर्डर कन्फर्म करें (Place Order)</span>
+                <div className="flex items-center gap-1.5 font-black">
+                  <span>₹{grandTotal}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Order Summary Popup */}
+      <OrderSummaryModal
+        isOpen={isOrderSummaryOpen}
+        onClose={() => setIsOrderSummaryOpen(false)}
+      />
+    </>
+  );
+}
