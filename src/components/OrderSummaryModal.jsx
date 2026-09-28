@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   X,
-  Phone,
   User,
   ShoppingBag,
   MapPin,
@@ -13,13 +12,11 @@ import {
   Minus,
   Trash2,
   Clock,
-  Sparkles,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import {
   OUTLET_CONTACTS,
   OUTLETS,
-  DELIVERY_AREAS,
   calculateDeliveryFee,
   isOutletOpen,
   getOutletTimingText,
@@ -32,7 +29,6 @@ export default function OrderSummaryModal({ isOpen, onClose }) {
     deliveryDistance,
     updateQuantity,
     removeFromCart,
-    clearCart,
   } = useCart();
 
   // Auto-detect current time & sort outlets: Open outlets first, Closed outlets below (PRO LEVEL)
@@ -87,12 +83,7 @@ export default function OrderSummaryModal({ isOpen, onClose }) {
     cartItems.length > 0 &&
     isSelectedOutletOpen;
 
-  // Append clicked delivery area to address
-  const handleQuickAddArea = (area) => {
-    if (!customerAddress.includes(area)) {
-      setCustomerAddress((prev) => (prev ? `${prev.trim()}, ${area}` : area));
-    }
-  };
+
 
   // WhatsApp Order Submission
   const handlePlaceOrder = (e) => {
@@ -474,36 +465,6 @@ _Order placed via Radhe Radhe Cafe Web App_`;
               </div>
             </div>
 
-            {/* 5. 📍 SERVICEABLE DELIVERY AREAS (MANDATORY READ-ONLY SECTION) */}
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-stone-50 border border-stone-200/90 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase text-stone-700 tracking-wider flex items-center gap-1.5 font-['Outfit']">
-                  <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                  <span>Delivery Areas (डिलीवरी क्षेत्र • 22 प्रमुख गांव व कस्बे):</span>
-                </span>
-                <span className="text-[10px] text-stone-400 font-semibold">
-                  टैप करके पते में जोड़ें
-                </span>
-              </div>
-
-              {/* 22 Delivery Areas as Clean Badge Pills */}
-              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-                {DELIVERY_AREAS.map((area) => (
-                  <button
-                    key={area}
-                    type="button"
-                    onClick={() => handleQuickAddArea(area)}
-                    title={`Click to add ${area} to address`}
-                    className="text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-white hover:bg-red-50 text-stone-700 hover:text-red-700 border border-stone-200/80 transition-colors shadow-2xs active:scale-95 cursor-pointer"
-                  >
-                    📍 {area}
-                  </button>
-                ))}
-              </div>
-              <p className="text-[10px] text-stone-500 font-hindi-body">
-                उपरोक्त सभी 22 क्षेत्रों में राधे राधे कैफे की त्वरित होम डिलीवरी सेवा उपलब्ध है।
-              </p>
-            </div>
 
             {/* Special Cooking Note (Optional) */}
             <div>

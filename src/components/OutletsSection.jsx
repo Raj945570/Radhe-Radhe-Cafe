@@ -9,10 +9,8 @@ import {
   Check,
   Copy,
   Store,
-  ArrowUpRight,
-  AlertCircle,
 } from 'lucide-react';
-import { OUTLETS, DELIVERY_AREAS, isOutletOpen } from '../data/menu';
+import { OUTLETS, isOutletOpen } from '../data/menu';
 
 export default function OutletsSection() {
   const [copiedPhone, setCopiedPhone] = useState(null);
@@ -293,52 +291,6 @@ export default function OutletsSection() {
             );
           })}
         </div>
-
-        {/* 📍 DELIVERY AREAS (SHOW IN UI - READ-ONLY SECTION) */}
-        <div className="mt-12 sm:mt-16 bg-[#faf8f5] rounded-3xl border border-stone-200/90 p-5 sm:p-8 shadow-xs">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-stone-200/70">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-xl sm:text-2xl font-black text-stone-900 font-['Outfit']">
-                  Serviceable Delivery Areas (होम डिलीवरी क्षेत्र)
-                </h3>
-                <p className="text-xs text-stone-500 font-hindi-body">
-                  राधे राधे कैफे द्वारा त्वरित होम डिलीवरी के लिए कवर किए गए 22 प्रमुख गांव एवं कस्बे
-                </p>
-              </div>
-            </div>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 shrink-0 self-start sm:self-auto">
-              22 प्रमुख क्षेत्र उपलब्ध
-            </span>
-          </div>
-
-          {/* 22 Delivery Areas */}
-          <div className="flex flex-wrap gap-2 sm:gap-2.5">
-            {DELIVERY_AREAS.map((area) => (
-              <span
-                key={area}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-2xs hover:border-red-400 hover:text-red-700 transition-colors"
-              >
-                <span className="text-red-600 font-bold">📍</span>
-                <span>{area}</span>
-              </span>
-            ))}
-          </div>
-
-          {/* Informative Footer */}
-          <div className="mt-5 pt-4 border-t border-stone-200/70 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-600 font-hindi-body">
-            <span>
-              🚚 ₹300 से अधिक के ऑर्डर पर <strong className="text-stone-900 font-bold">2km तक मुफ्त होम डिलीवरी</strong> • 2km के बाद मात्र ₹20/km
-            </span>
-            <span className="font-bold text-emerald-700">
-              ✓ शुद्ध शाकाहारी • हाइजीनिक हॉट पैकिंग • व्हाट्सएप ऑर्डरिंग
-            </span>
-          </div>
-        </div>
-
       </div>
     </section>
   );
