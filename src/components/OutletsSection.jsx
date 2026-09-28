@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   MapPin,
   Phone,
@@ -10,10 +10,9 @@ import {
   Copy,
   Store,
   ArrowUpRight,
+  AlertCircle,
 } from 'lucide-react';
-import { OUTLETS } from '../data/menu';
-
-
+import { OUTLETS, DELIVERY_AREAS, isOutletOpen } from '../data/menu';
 
 export default function OutletsSection() {
   const [copiedPhone, setCopiedPhone] = useState(null);
@@ -23,6 +22,17 @@ export default function OutletsSection() {
     setCopiedPhone(phone);
     setTimeout(() => setCopiedPhone(null), 2000);
   };
+
+  // Auto-detect current time & sort outlets: Open outlets first, Closed outlets below (PRO LEVEL)
+  const sortedOutlets = useMemo(() => {
+    return [...OUTLETS].sort((a, b) => {
+      const aOpen = isOutletOpen(a);
+      const bOpen = isOutletOpen(b);
+      if (aOpen && !bOpen) return -1;
+      if (!aOpen && bOpen) return 1;
+      return 0;
+    });
+  }, []);
 
   return (
     <section
@@ -50,7 +60,7 @@ export default function OutletsSection() {
               <Store className="w-3 h-3 stroke-[2.4]" />
             </div>
             <span className="text-xs font-black uppercase tracking-widest text-[#b30000] font-['Outfit']">
-              OUR OUTLETS
+              OUR OUTLETS & TIMINGS
             </span>
           </div>
 
@@ -62,14 +72,14 @@ export default function OutletsSection() {
           {/* Subtitle */}
           <p className="mt-3 text-sm sm:text-base text-stone-600 leading-relaxed font-normal">
             Serving fresh, delicious, and hygienic food across 3 premier locations in Azamgarh. 
-            Dine-in, takeaway, or call your nearest outlet manager directly.
+            Live operational timings and direct manager contacts.
           </p>
         </div>
 
-        {/* 3 Premium Cards Grid */}
+        {/* 3 Premium Cards Grid with Live Timing & Open/Closed Status */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-          {OUTLETS.map((outlet, index) => {
-            const isFirst = index === 0;
+          {sortedOutlets.map((outlet) => {
+            const isOpen = isOutletOpen(outlet);
             const whatsappText = encodeURIComponent(
               `Hello ${outlet.manager} ji! I would like to place an order at ${outlet.title}.`
             );
@@ -80,19 +90,35 @@ export default function OutletsSection() {
             return (
               <div
                 key={outlet.id}
-                className="bg-white rounded-3xl border border-stone-200/90 shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(179,0,0,0.12)] hover:border-red-300 transition-all duration-300 hover:-translate-y-2 group relative overflow-hidden flex flex-col justify-between"
+                className={`bg-white rounded-3xl border transition-all duration-300 hover:-translate-y-2 group relative overflow-hidden flex flex-col justify-between ${
+                  isOpen
+                    ? 'border-stone-200/90 shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(179,0,0,0.12)] hover:border-red-300'
+                    : 'border-stone-200/70 bg-stone-50/40 opacity-90 shadow-xs'
+                }`}
               >
-                {/* Red Accent Top Bar */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-[#b30000] via-[#dc2626] to-[#b30000]" />
+                {/* Red/Green Accent Top Bar */}
+                <div
+                  className={`h-1.5 w-full ${
+                    isOpen
+                      ? 'bg-gradient-to-r from-[#b30000] via-[#dc2626] to-[#b30000]'
+                      : 'bg-stone-300'
+                  }`}
+                />
 
                 <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-6">
                   
-                  {/* Card Header: Outlet Name & Badge */}
+                  {/* Card Header: Outlet Name & Live Status Badge */}
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-3">
                       {/* Outlet Icon & Code */}
                       <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-2xl bg-red-50 text-[#b30000] flex items-center justify-center font-black font-['Outfit'] shadow-sm group-hover:bg-[#b30000] group-hover:text-white transition-colors duration-300">
+                        <div
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black font-['Outfit'] shadow-sm transition-colors duration-300 ${
+                            isOpen
+                              ? 'bg-red-50 text-[#b30000] group-hover:bg-[#b30000] group-hover:text-white'
+                              : 'bg-stone-100 text-stone-500'
+                          }`}
+                        >
                           <Store className="w-5 h-5" />
                         </div>
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200">
@@ -100,25 +126,64 @@ export default function OutletsSection() {
                         </span>
                       </div>
 
-                      {/* Status indicator */}
-                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Open Now
-                      </span>
+                      {/* Live Open / Closed Status indicator */}
+                      {isOpen ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Open Now
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-stone-500 bg-stone-100 px-2.5 py-1 rounded-full border border-stone-200">
+                          <span className="w-2 h-2 rounded-full bg-stone-400" />
+                          Closed
+                        </span>
+                      )}
                     </div>
 
-                    {/* Title */}
+                    {/* Title & Timing subtitle */}
                     <h3 className="text-2xl sm:text-3xl font-extrabold text-stone-900 font-['Outfit'] tracking-tight group-hover:text-[#b30000] transition-colors">
                       {outlet.title}
                     </h3>
-                    <p className="text-xs text-[#b30000] font-semibold mt-0.5">
-                      {outlet.badge}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-[#b30000] font-bold">
+                        {outlet.badge}
+                      </span>
+                      <span className="text-stone-300">•</span>
+                      <span className="text-xs text-stone-600 font-semibold font-mono">
+                        {outlet.timing}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Information List */}
                   <div className="space-y-4 pt-2 border-t border-stone-100">
                     
+                    {/* Operational Timing Display (REQUIRED) */}
+                    <div className="flex items-center gap-3 bg-amber-50/70 p-2.5 rounded-2xl border border-amber-200/80">
+                      <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+                        <Clock className="w-4 h-4 text-amber-800" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block font-['Outfit']">
+                            🕒 Operational Timing
+                          </span>
+                          <span
+                            className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded ${
+                              isOpen
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-stone-200 text-stone-700'
+                            }`}
+                          >
+                            {isOpen ? 'Accepting Orders' : 'Reopens at Timing'}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm font-extrabold text-stone-900 mt-0.5 font-mono">
+                          {outlet.timing}
+                        </p>
+                      </div>
+                    </div>
+
                     {/* Location */}
                     <div className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-xl bg-red-50 text-[#b30000] flex items-center justify-center shrink-0 mt-0.5">
@@ -180,33 +245,6 @@ export default function OutletsSection() {
                       </div>
                     </div>
 
-                    {/* Timing */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center shrink-0">
-                        <Clock className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider block">
-                          Hours
-                        </span>
-                        <p className="text-xs text-stone-700 font-medium">
-                          {outlet.timing}
-                        </p>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {outlet.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[10px] font-semibold text-stone-600 bg-stone-50 px-2.5 py-1 rounded-md border border-stone-200/70"
-                      >
-                        ✓ {tag}
-                      </span>
-                    ))}
                   </div>
 
                   {/* Action CTA Buttons */}
@@ -226,10 +264,15 @@ export default function OutletsSection() {
                       href={`https://wa.me/91${outlet.phone}?text=${whatsappText}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs shadow-sm transition-all active:scale-95 text-center"
+                      className={`inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-white font-bold text-xs shadow-sm transition-all active:scale-95 text-center ${
+                        isOpen
+                          ? 'bg-[#25D366] hover:bg-[#20ba59]'
+                          : 'bg-stone-500 hover:bg-stone-600'
+                      }`}
+                      title={isOpen ? 'Chat on WhatsApp' : `Reopens at ${outlet.timing}`}
                     >
                       <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Chat</span>
+                      <span>{isOpen ? 'Order' : 'Chat'}</span>
                     </a>
 
                     {/* Directions Button */}
@@ -251,9 +294,52 @@ export default function OutletsSection() {
           })}
         </div>
 
+        {/* 📍 DELIVERY AREAS (SHOW IN UI - READ-ONLY SECTION) */}
+        <div className="mt-12 sm:mt-16 bg-[#faf8f5] rounded-3xl border border-stone-200/90 p-5 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-stone-200/70">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-xl sm:text-2xl font-black text-stone-900 font-['Outfit']">
+                  Serviceable Delivery Areas (होम डिलीवरी क्षेत्र)
+                </h3>
+                <p className="text-xs text-stone-500 font-hindi-body">
+                  राधे राधे कैफे द्वारा त्वरित होम डिलीवरी के लिए कवर किए गए 22 प्रमुख गांव एवं कस्बे
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 shrink-0 self-start sm:self-auto">
+              22 प्रमुख क्षेत्र उपलब्ध
+            </span>
+          </div>
+
+          {/* 22 Delivery Areas */}
+          <div className="flex flex-wrap gap-2 sm:gap-2.5">
+            {DELIVERY_AREAS.map((area) => (
+              <span
+                key={area}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-stone-200 text-stone-800 text-xs sm:text-sm font-semibold shadow-2xs hover:border-red-400 hover:text-red-700 transition-colors"
+              >
+                <span className="text-red-600 font-bold">📍</span>
+                <span>{area}</span>
+              </span>
+            ))}
+          </div>
+
+          {/* Informative Footer */}
+          <div className="mt-5 pt-4 border-t border-stone-200/70 flex flex-wrap items-center justify-between gap-2 text-xs text-stone-600 font-hindi-body">
+            <span>
+              🚚 ₹300 से अधिक के ऑर्डर पर <strong className="text-stone-900 font-bold">2km तक मुफ्त होम डिलीवरी</strong> • 2km के बाद मात्र ₹20/km
+            </span>
+            <span className="font-bold text-emerald-700">
+              ✓ शुद्ध शाकाहारी • हाइजीनिक हॉट पैकिंग • व्हाट्सएप ऑर्डरिंग
+            </span>
+          </div>
+        </div>
 
       </div>
     </section>
   );
 }
-

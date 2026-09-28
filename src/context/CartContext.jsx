@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CAFE_INFO } from '../data/menu';
+import { CAFE_INFO, calculateDeliveryFee as calcFee } from '../data/menu';
 
 const CartContext = createContext();
 
-const CART_STORAGE_KEY = 'radhe_radhe_cafe_cart_v2';
+const CART_STORAGE_KEY = 'radhe_radhe_cafe_cart_v3';
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState(() => {
@@ -66,7 +66,7 @@ export function CartProvider({ children }) {
     setCartItems([]);
   };
 
-  // Get item quantity in cart
+  // Get item quantity in cart by id
   const getItemQuantity = (id) => {
     const item = cartItems.find((i) => i.id === id);
     return item ? item.quantity : 0;
@@ -76,19 +76,15 @@ export function CartProvider({ children }) {
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  // Dynamic delivery fee calculation based on distance and free delivery threshold
-  const calculateDeliveryFee = (distance) => {
-    if (subtotal === 0) return 0;
-    if (subtotal >= CAFE_INFO.freeDeliveryThreshold) return 0;
-    const distNum = parseFloat(distance) || 0;
-    if (distNum <= 3) return CAFE_INFO.baseDeliveryFee;
-    if (distNum <= 6) return CAFE_INFO.baseDeliveryFee + 20;
-    return CAFE_INFO.baseDeliveryFee + 40;
-  };
-
-  const deliveryFee = calculateDeliveryFee(deliveryDistance);
+  // Exact Delivery Calculation:
+  // - Free delivery above ₹300 (within 2km)
+  // - ₹20/km extra beyond 2km
+  const deliveryFee = calcFee(subtotal, deliveryDistance);
   const packagingFee = subtotal > 0 ? 10 : 0;
   const grandTotal = subtotal + deliveryFee + packagingFee;
+
+  const isFreeDeliveryEligible = subtotal >= CAFE_INFO.freeDeliveryThreshold && deliveryDistance <= CAFE_INFO.freeDeliveryDistanceKm;
+  const amountNeededForFreeDelivery = Math.max(0, CAFE_INFO.freeDeliveryThreshold - subtotal);
 
   const openCart = () => {
     setIsCartOpen(true);
@@ -125,6 +121,8 @@ export function CartProvider({ children }) {
         deliveryFee,
         packagingFee,
         grandTotal,
+        isFreeDeliveryEligible,
+        amountNeededForFreeDelivery,
         isCartOpen,
         openCart,
         closeCart,

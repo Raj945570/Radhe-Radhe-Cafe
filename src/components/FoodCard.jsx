@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Plus, Minus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export default function FoodCard({ item }) {
   const { addToCart, updateQuantity, getItemQuantity } = useCart();
-  const [selectedVariant, setSelectedVariant] = useState(item.halfPrice ? 'full' : null);
-
   const hasVariants = Boolean(item.halfPrice && item.fullPrice);
 
-  // Determine active item id for cart when variants exist
+  const [selectedVariant, setSelectedVariant] = useState(hasVariants ? 'half' : null);
+
+  // Active item ID for cart
   const activeItemId = hasVariants ? `${item.id}-${selectedVariant}` : item.id;
   const currentQuantity = getItemQuantity(activeItemId);
 
@@ -19,8 +19,10 @@ export default function FoodCard({ item }) {
         ...item,
         id: `${item.id}-${selectedVariant}`,
         name: `${item.name} (${isHalf ? 'Half' : 'Full'})`,
+        hindiName: `${item.hindiName} (${isHalf ? 'हाफ' : 'फुल'})`,
         price: isHalf ? item.halfPrice : item.fullPrice,
         variant: isHalf ? 'Half' : 'Full',
+        variantLabel: isHalf ? 'हाफ (Half)' : 'फुल (Full)',
       });
     } else {
       addToCart(item);
@@ -34,127 +36,131 @@ export default function FoodCard({ item }) {
   return (
     <div
       id={`food-card-${item.id}`}
-      className="group flex flex-col justify-between rounded-2xl bg-white border border-stone-200/80 hover:border-red-500/40 transition-all duration-300 shadow-xs hover:shadow-lg overflow-hidden"
+      className="group flex flex-col justify-between rounded-2xl bg-white border border-stone-200/90 hover:border-red-500/50 hover:shadow-lg transition-all duration-200 overflow-hidden shadow-xs relative"
     >
-      <div>
-        {/* Real Image (ONLY if provided, no AI images, no placeholders) */}
-        {item.image ? (
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100">
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-            {/* Pure Veg Indicator */}
-            {item.isVeg && (
-              <span className="absolute top-2.5 left-2.5 w-5 h-5 rounded bg-white/95 border border-emerald-600 flex items-center justify-center p-0.5 shadow-xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-              </span>
-            )}
+      {/* Top Header: Pure Veg & Badge */}
+      <div className="p-3 sm:p-4 pb-1">
+        <div className="flex items-center justify-between gap-1 mb-2">
+          {/* Authentic Pure Veg Icon */}
+          <div
+            className="w-4 h-4 rounded-[4px] border border-emerald-600 flex items-center justify-center p-0.5 bg-white shrink-0"
+            title="100% Pure Vegetarian"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-600 block" />
           </div>
-        ) : (
-          /* Clean Header when image is not present */
-          <div className="pt-3 px-4 pb-0 flex items-center justify-between">
-            {item.isVeg && (
-              <span className="w-5 h-5 rounded bg-white border border-emerald-600 flex items-center justify-center p-0.5 shadow-xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
-              </span>
-            )}
-            {item.plateType && (
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-stone-600">
-                {item.plateType}
-              </span>
-            )}
+
+          {/* Plate type badge if applicable */}
+          {item.plateType ? (
+            <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200/80">
+              {item.plateType}
+            </span>
+          ) : item.subGroup ? (
+            <span className="text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">
+              {item.subGroup}
+            </span>
+          ) : null}
+        </div>
+
+        {/* Item Title: Hindi + English */}
+        <div className="space-y-0.5">
+          <h4 className="font-hindi-body font-bold text-sm sm:text-base text-stone-900 leading-snug group-hover:text-red-700 transition-colors line-clamp-2">
+            {item.hindiName || item.name}
+          </h4>
+          <p className="text-[11px] sm:text-xs text-stone-500 font-medium tracking-tight line-clamp-1">
+            {item.name}
+          </p>
+        </div>
+
+        {/* Variant Selector (HALF / FULL) */}
+        {hasVariants && (
+          <div className="mt-2.5 pt-2 border-t border-stone-100">
+            <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">
+              साइज चुनें (Select Size):
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => setSelectedVariant('half')}
+                className={`py-1 px-1.5 rounded-lg text-[11px] font-extrabold transition-all border text-center ${
+                  selectedVariant === 'half'
+                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                }`}
+              >
+                <div>Half</div>
+                <div className="font-['Outfit']">₹{item.halfPrice}</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedVariant('full')}
+                className={`py-1 px-1.5 rounded-lg text-[11px] font-extrabold transition-all border text-center ${
+                  selectedVariant === 'full'
+                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                }`}
+              >
+                <div>Full</div>
+                <div className="font-['Outfit']">₹{item.fullPrice}</div>
+              </button>
+            </div>
           </div>
         )}
-
-        {/* Item Content: Authentic Hindi Item Name Front & Center */}
-        <div className="p-4 space-y-2 text-left">
-          <h3 className="font-hindi-body font-bold text-lg sm:text-xl text-stone-900 leading-snug group-hover:text-red-600 transition-colors">
-            {item.name}
-          </h3>
-
-          {/* Half / Full Pricing Display */}
-          {hasVariants ? (
-            <div className="space-y-2 pt-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => setSelectedVariant('half')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
-                    selectedVariant === 'half'
-                      ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                      : 'bg-red-50/80 text-red-700 border-red-200/80 hover:bg-red-100/70'
-                  }`}
-                >
-                  Half ₹{item.halfPrice}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedVariant('full')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
-                    selectedVariant === 'full'
-                      ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                      : 'bg-red-50/80 text-red-700 border-red-200/80 hover:bg-red-100/70'
-                  }`}
-                >
-                  Full ₹{item.fullPrice}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="pt-1">
-              <span className="text-xl font-extrabold text-stone-900 font-['Outfit']">
-                ₹{item.price}
-              </span>
-              {item.plateType && (
-                <span className="text-xs text-stone-500 font-medium ml-1">
-                  / {item.plateType}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
       </div>
 
-      {/* Footer: Add to Cart / Quantity controls */}
-      <div className="p-4 pt-3 border-t border-stone-100 bg-[#FAFAFA]/70 flex items-center justify-between">
-        {hasVariants && (
-          <span className="text-xs font-bold text-stone-500 capitalize">
-            Selected: <span className="text-red-600">{selectedVariant}</span>
-          </span>
-        )}
+      {/* Footer: Price + Add Button / Quantity Stepper */}
+      <div className="p-3 sm:p-4 pt-2 mt-auto border-t border-stone-100/90 bg-[#faf8f5]/60 flex items-center justify-between gap-2">
+        {/* Price Display */}
+        <div>
+          {hasVariants ? (
+            <div>
+              <span className="text-[10px] font-bold text-stone-400 block uppercase">
+                {selectedVariant === 'half' ? 'हाफ' : 'फुल'}
+              </span>
+              <span className="text-base sm:text-lg font-black text-stone-900 font-['Outfit'] leading-none">
+                ₹{selectedVariant === 'half' ? item.halfPrice : item.fullPrice}
+              </span>
+            </div>
+          ) : (
+            <span className="text-base sm:text-lg font-black text-stone-900 font-['Outfit'] leading-none">
+              ₹{item.price}
+            </span>
+          )}
+        </div>
 
+        {/* Add Button or Stepper */}
         {currentQuantity === 0 ? (
           <button
             onClick={handleAdd}
             id={`btn-add-${activeItemId}`}
-            className="ml-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold text-xs shadow-xs transition-all"
+            aria-label={`Add ${item.name} to cart`}
+            className="inline-flex items-center justify-center gap-1 px-3 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:scale-95 text-white font-bold text-xs shadow-xs hover:shadow-md transition-all cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add to Cart</span>
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Add</span>
           </button>
         ) : (
-          <div className="ml-auto inline-flex items-center rounded-xl bg-white border border-red-600 text-stone-900 shadow-xs overflow-hidden">
+          <div className="inline-flex items-center rounded-xl bg-white border border-red-600 text-stone-900 shadow-xs overflow-hidden">
             <button
               onClick={() => handleUpdate(-1)}
               id={`btn-minus-${activeItemId}`}
-              className="p-1.5 px-2.5 hover:bg-red-50 text-red-600 transition"
+              className="p-1 px-2 hover:bg-red-50 text-red-600 transition active:scale-90 font-bold"
               aria-label="Decrease quantity"
             >
-              <Minus className="w-3.5 h-3.5" />
+              <Minus className="w-3 h-3 stroke-[2.5]" />
             </button>
-            <span className="px-2 font-bold text-xs text-stone-900 min-w-[20px] text-center">
+            <span
+              id={`qty-${activeItemId}`}
+              className="px-1.5 font-black text-xs text-stone-900 min-w-[18px] text-center font-['Outfit']"
+            >
               {currentQuantity}
             </span>
             <button
               onClick={() => handleUpdate(1)}
               id={`btn-plus-${activeItemId}`}
-              className="p-1.5 px-2.5 bg-red-600 hover:bg-red-700 text-white transition"
+              className="p-1 px-2 bg-red-600 hover:bg-red-700 text-white transition active:scale-90 font-bold"
               aria-label="Increase quantity"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3 h-3 stroke-[2.5]" />
             </button>
           </div>
         )}
