@@ -59,22 +59,24 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Instagram Icon ONLY (No text) */}
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-semibold text-stone-500 hidden md:inline">
-                  Official Instagram:
-                </span>
+              {/* Instagram Follow CTA Button */}
+              <div className="flex items-center pt-2 sm:pt-0">
                 <a
                   href="https://www.instagram.com/radheradhechatcorner"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  title="Follow @radheradhechatcorner on Instagram"
-                  className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shadow-sm hover:scale-110 transition-transform active:scale-95"
+                  id="contact-instagram-cta"
+                  aria-label="Follow us on Instagram @radheradhechatcorner"
+                  title="Follow Radhe Radhe Cafe on Instagram"
+                  className="group inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-red-50 via-rose-50 to-orange-50 hover:from-[#b30000] hover:to-[#8e1012] text-stone-800 hover:text-white border border-red-200/90 hover:border-transparent shadow-xs hover:shadow-md transition-all duration-300 hover:scale-105 active:scale-95"
                 >
-                  <InstagramIcon className="w-5 h-5" />
+                  <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:rotate-12 transition-transform duration-300">
+                    <InstagramIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                  </span>
+                  <span className="font-['Outfit'] font-semibold text-xs sm:text-sm tracking-wide">
+                    Follow us on Instagram
+                  </span>
                 </a>
-
               </div>
             </div>
 

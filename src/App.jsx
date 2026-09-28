@@ -119,17 +119,18 @@ function Footer() {
                 <span>{CAFE_INFO.timing}</span>
               </div>
             </div>
-            {/* Social Channels - ONLY Instagram icon, no text */}
+            {/* Social Channels - Instagram CTA */}
             <div className="pt-2">
               <a
                 href="https://www.instagram.com/radheradhechatcorner"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram"
+                aria-label="Follow us on Instagram"
                 title="Follow @radheradhechatcorner on Instagram"
-                className="w-9 h-9 rounded-full bg-stone-800 hover:bg-[#E1306C] text-stone-300 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-sm"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-stone-800 hover:bg-gradient-to-r hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] text-stone-300 hover:text-white transition-all duration-300 hover:scale-105 shadow-sm text-xs font-medium"
               >
-                <InstagramIcon className="w-4.5 h-4.5" />
+                <InstagramIcon className="w-4 h-4" />
+                <span>Follow us on Instagram</span>
               </a>
             </div>
           </div>
