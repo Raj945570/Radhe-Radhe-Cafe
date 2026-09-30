@@ -13,10 +13,9 @@ export const CAFE_INFO = {
   address: 'Mudhar Mod, Saraimohan, Thekma',
   city: 'Azamgarh, UP - 276303',
   timing: '8:00 AM - 11:00 PM (Daily)',
-  freeDeliveryThreshold: 300, // Free delivery above ₹300 (within 2km)
-  freeDeliveryDistanceKm: 2,  // within 2km
-  extraKmRate: 20,            // ₹20/km extra beyond 2km
-  baseDeliveryFee: 20,        // base fee under ₹300 within 2km
+  baseDeliveryFee: 10,        // Base delivery charge = ₹10 (always applicable)
+  baseDeliveryDistanceKm: 2,  // Base distance = 2 km
+  extraKmRate: 20,            // Extra charge = ₹20 per km (after 2 km)
   instagramHandle: '@radheradhechatcorner',
   instagramUrl: 'https://www.instagram.com/radheradhechatcorner',
 };
@@ -127,18 +126,37 @@ export const DELIVERY_AREAS = [
 ];
 
 // Delivery fee calculation matching exact rule:
-// - Free delivery above ₹300 (within 2km)
-// - ₹20/km extra beyond 2km
-export const calculateDeliveryFee = (subtotal, distanceKm) => {
-  if (!subtotal || subtotal <= 0) return 0;
-  const dist = Math.max(1, parseFloat(distanceKm) || 2);
-  const extraKm = Math.max(0, Math.ceil(dist - CAFE_INFO.freeDeliveryDistanceKm));
+// - Base delivery charge = ₹10 (always applicable)
+// - If distance ≤ 2 km: Total delivery = ₹10 only
+// - If distance > 2 km: Extra charge = ₹20 per km (after 2 km)
+//   Total delivery = ₹10 + (extra_km × ₹20)
+// Examples:
+// - 1.5 km → ₹10
+// - 3 km → ₹10 + (1 × 20) = ₹30
+// - 5 km → ₹10 + (3 × 20) = ₹70
+export const calculateDeliveryFee = (distanceOrSubtotal, maybeDistance) => {
+  let distance = 2;
+  let subtotal = 1;
 
-  if (subtotal >= CAFE_INFO.freeDeliveryThreshold) {
-    return extraKm * CAFE_INFO.extraKmRate;
-  } else {
-    return CAFE_INFO.baseDeliveryFee + extraKm * CAFE_INFO.extraKmRate;
+  if (maybeDistance !== undefined) {
+    subtotal = parseFloat(distanceOrSubtotal);
+    distance = parseFloat(maybeDistance);
+    if (isNaN(subtotal)) subtotal = 1;
+  } else if (distanceOrSubtotal !== undefined) {
+    distance = parseFloat(distanceOrSubtotal);
   }
+
+  // If cart is empty, delivery fee is 0
+  if (subtotal <= 0) return 0;
+
+  const dist = isNaN(distance) || distance <= 0 ? 2 : distance;
+
+  if (dist <= 2) {
+    return 10;
+  }
+
+  const extraKm = dist - 2;
+  return Math.round(10 + extraKm * 20);
 };
 
 // 20 Exact Menu Categories with premium matching food photography

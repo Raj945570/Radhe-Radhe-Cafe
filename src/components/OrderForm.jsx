@@ -68,48 +68,39 @@ export default function OrderForm({ onBack }) {
 
   // Calculate actual applied delivery fee depending on orderType
   const currentDeliveryFee = orderType === 'delivery' ? deliveryFee : 0;
-  const currentTotal = subtotal + currentDeliveryFee + packagingFee;
+  const currentTotal = subtotal + currentDeliveryFee;
 
   // WhatsApp Order Submission
   const handlePlaceOrder = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    // Build neatly formatted WhatsApp message
+    // 🛒 Items format matching rules:
+    // - Item Name (Half/Full) × Quantity = ₹Price
+    // - Item Name × Quantity = ₹Price
     const orderItemsText = cartItems
-      .map(
-        (item) =>
-          `• ${item.name} x ${item.quantity}  —  ₹${item.price * item.quantity}`
-      )
+      .map((item) => {
+        const rawName = (item.baseName || item.name.replace(/\s*\((Half|Full)\)$/i, '')).trim();
+        const lineTotal = item.price * item.quantity;
+        if (item.variant) {
+          return `- ${rawName} (${item.variant}) × ${item.quantity} = ₹${lineTotal}`;
+        }
+        return `- ${rawName} × ${item.quantity} = ₹${lineTotal}`;
+      })
       .join('\n');
 
-    const addressSection =
-      orderType === 'delivery'
-        ? `*📍 Delivery Address:* ${formData.address.trim()}\n*📏 Distance:* ~${deliveryDistance} km\n*🚚 Delivery Fee:* ${
-            currentDeliveryFee === 0 ? 'FREE' : `₹${currentDeliveryFee}`
-          }`
-        : `*🏬 Order Type:* Self Pickup / Takeaway at Cafe`;
+    const whatsappMessage = `🧾 New Order - Radhe Radhe Cafe
 
-    const notesSection = formData.notes.trim()
-      ? `\n*📝 Cooking Instructions:* ${formData.notes.trim()}`
-      : '';
+📍 Outlet: ${CAFE_INFO.name}
 
-    const whatsappMessage = `*🍽️ NEW ORDER - RADHE RADHE CAFE 🍽️*
-==============================
-*👤 Customer:* ${formData.name.trim()}
-*📞 Phone:* +91 ${formData.phone.trim()}
-${addressSection}
-
-*🛒 Items Ordered:*
-------------------------------
+🛒 Items:
 ${orderItemsText}
-------------------------------
-*Item Total:* ₹${subtotal}
-*Packaging Fee:* ₹${packagingFee}
-*Total Payable:* ₹${currentTotal}${notesSection}
 
-_Order placed via Radhe Radhe Cafe Web App_
-==============================`;
+🚚 Delivery Charge: ₹${currentDeliveryFee}
+💰 Total Amount: ₹${currentTotal}
+
+📍 Address: ${formData.address.trim()}
+📞 Contact: ${formData.phone.trim()}`;
 
     const encodedMessage = encodeURIComponent(whatsappMessage);
     const whatsappUrl = `https://wa.me/${CAFE_INFO.phone}?text=${encodedMessage}`;
@@ -354,16 +345,12 @@ _Order placed via Radhe Radhe Cafe Web App_
           </div>
           {orderType === 'delivery' && (
             <div className="flex justify-between text-[#a39789]">
-              <span>Delivery Fee ({deliveryDistance} km):</span>
-              <span className={currentDeliveryFee === 0 ? 'text-emerald-400 font-bold' : ''}>
-                {currentDeliveryFee === 0 ? 'FREE' : `₹${currentDeliveryFee}`}
+              <span>Delivery Charge ({deliveryDistance} km):</span>
+              <span className="font-bold text-amber-400">
+                ₹{currentDeliveryFee}
               </span>
             </div>
           )}
-          <div className="flex justify-between text-[#a39789]">
-            <span>Hygiene & Packaging:</span>
-            <span>₹{packagingFee}</span>
-          </div>
           <div className="flex justify-between font-extrabold text-sm text-[#fdfbf7] pt-2 border-t border-[#2d251f]">
             <span>Grand Total:</span>
             <span className="text-amber-400 font-['Outfit'] text-base">₹{currentTotal}</span>

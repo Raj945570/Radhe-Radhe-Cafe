@@ -18,6 +18,7 @@ export default function FoodCard({ item }) {
       addToCart({
         ...item,
         id: `${item.id}-${selectedVariant}`,
+        baseName: item.name,
         name: `${item.name} (${isHalf ? 'Half' : 'Full'})`,
         hindiName: `${item.hindiName} (${isHalf ? 'हाफ' : 'फुल'})`,
         price: isHalf ? item.halfPrice : item.fullPrice,
@@ -25,7 +26,10 @@ export default function FoodCard({ item }) {
         variantLabel: isHalf ? 'हाफ (Half)' : 'फुल (Full)',
       });
     } else {
-      addToCart(item);
+      addToCart({
+        ...item,
+        baseName: item.name,
+      });
     }
   };
 

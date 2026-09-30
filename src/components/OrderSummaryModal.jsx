@@ -27,6 +27,7 @@ export default function OrderSummaryModal({ isOpen, onClose }) {
     cartItems,
     subtotal,
     deliveryDistance,
+    setDeliveryDistance,
     updateQuantity,
     removeFromCart,
   } = useCart();
@@ -64,11 +65,14 @@ export default function OrderSummaryModal({ isOpen, onClose }) {
   const activeOutletTiming = activeOutletObj?.timing || getOutletTimingText(activeOutletObj);
 
   // Delivery calculation based on rule:
-  // - Free delivery above ₹300 (within 2km)
-  // - ₹20/km extra beyond 2km
+  // - Base delivery charge = ₹10 (always applicable)
+  // - If distance ≤ 2 km: ₹10 only
+  // - If distance > 2 km: ₹10 + (extra_km × ₹20)
   const currentDeliveryFee = calculateDeliveryFee(subtotal, deliveryDistance);
-  const packagingFee = subtotal > 0 ? 10 : 0;
-  const grandTotal = subtotal + currentDeliveryFee + packagingFee;
+  // Packaging fee removed completely as per rules
+  const packagingFee = 0;
+  // Final bill: (Sum of all item totals) + Delivery Charge
+  const grandTotal = subtotal > 0 ? subtotal + currentDeliveryFee : 0;
 
   // Field Validation
   const cleanPhone = customerPhone.replace(/\D/g, '');
@@ -122,36 +126,33 @@ export default function OrderSummaryModal({ isOpen, onClose }) {
     setIsRedirecting(true);
     setToastMessage(`Redirecting to WhatsApp (${selectedOutlet} Manager)...`);
 
-    // 🍽️ Order Details lines:
-    // Format: - Item Name (Full/Half) x Quantity
+    // 🛒 Items lines:
+    // - Item Name (Half/Full) × Quantity = ₹Price
+    // - Item Name × Quantity = ₹Price
     const orderDetailsList = cartItems
       .map((item) => {
-        const variantText = item.variant ? `(${item.variant})` : '';
-        const namePart = `${item.name} ${variantText}`.trim();
-        return `- ${namePart} x ${item.quantity}  (₹${item.price * item.quantity})`;
+        const rawName = (item.baseName || item.name.replace(/\s*\((Half|Full)\)$/i, '')).trim();
+        const lineTotal = item.price * item.quantity;
+        if (item.variant) {
+          return `- ${rawName} (${item.variant}) × ${item.quantity} = ₹${lineTotal}`;
+        }
+        return `- ${rawName} × ${item.quantity} = ₹${lineTotal}`;
       })
       .join('\n');
 
-    // Structured Message strictly matching customer requirements:
-    const whatsappMessage = `🛒 *New Order - Radhe Radhe Cafe*
+    // Exact formatted message as specified:
+    const whatsappMessage = `🧾 New Order - Radhe Radhe Cafe
 
-👤 Name: ${customerName.trim()}
-📞 Phone: +91 ${cleanPhone}
-📍 Address: ${customerAddress.trim()}
+📍 Outlet: ${selectedOutlet}
 
-🍽️ Order Details:
+🛒 Items:
 ${orderDetailsList}
 
-🏪 Outlet: ${selectedOutlet}
-🕒 Timing: ${activeOutletTiming}
-━━━━━━━━━━━━━━━━━━━
-💰 Items Total: ₹${subtotal}
-🚚 Delivery Fee: ${currentDeliveryFee === 0 ? 'FREE (within 2km)' : `₹${currentDeliveryFee}`}
-📦 Packaging: ₹${packagingFee}
-💵 *TOTAL AMOUNT: ₹${grandTotal}*
-${notes.trim() ? `\n📝 Cooking Note: ${notes.trim()}` : ''}
-━━━━━━━━━━━━━━━━━━━
-_Order placed via Radhe Radhe Cafe Web App_`;
+🚚 Delivery Charge: ₹${currentDeliveryFee}
+💰 Total Amount: ₹${grandTotal}
+
+📍 Address: ${customerAddress.trim()}
+📞 Contact: ${customerPhone.trim()}`;
 
     const encodedMessage = encodeURIComponent(whatsappMessage);
     const whatsappUrl = `https://wa.me/${targetManagerWhatsApp}?text=${encodedMessage}`;
@@ -465,6 +466,34 @@ _Order placed via Radhe Radhe Cafe Web App_`;
               </div>
             </div>
 
+            {/* Delivery Distance Selector */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-stone-700">
+                  Delivery Distance (अनुमानित डिलीवरी दूरी)
+                </label>
+                <span className="text-xs font-black text-red-600 font-['Outfit']">
+                  {deliveryDistance} km (डिलीवरी शुल्क: ₹{currentDeliveryFee})
+                </span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                step="0.5"
+                id="order-distance-slider"
+                value={deliveryDistance}
+                onChange={(e) => setDeliveryDistance(parseFloat(e.target.value) || 2)}
+                className="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+              />
+              <div className="flex justify-between text-[10px] text-stone-400 mt-1 font-medium font-['Outfit']">
+                <span>≤2 km (₹10)</span>
+                <span>3 km (₹30)</span>
+                <span>5 km (₹70)</span>
+                <span>10 km (₹170)</span>
+              </div>
+            </div>
+
 
             {/* Special Cooking Note (Optional) */}
             <div>
@@ -496,13 +525,9 @@ _Order placed via Radhe Radhe Cafe Web App_`;
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>डिलीवरी शुल्क:</span>
-                <span className={currentDeliveryFee === 0 ? 'text-emerald-700 font-bold' : 'font-bold text-stone-900'}>
-                  {currentDeliveryFee === 0 ? 'मुफ्त (FREE on ₹300+)' : `₹${currentDeliveryFee}`}
+                <span className="font-bold text-stone-900 font-['Outfit']">
+                  ₹{currentDeliveryFee}
                 </span>
-              </div>
-              <div className="flex justify-between text-stone-600">
-                <span>हाइजीन व पैकिंग:</span>
-                <span className="font-bold text-stone-900 font-['Outfit']">₹{packagingFee}</span>
               </div>
               <div className="flex justify-between text-sm font-black text-stone-900 pt-2 border-t border-stone-200">
                 <span>कुल देय राशि (Total Amount):</span>

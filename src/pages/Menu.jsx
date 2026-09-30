@@ -110,7 +110,7 @@ export default function Menu() {
           {/* Delivery Logic Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-amber-50 border border-amber-200/90 text-amber-900 text-xs font-bold font-hindi-body shadow-2xs">
             <Truck className="w-4 h-4 text-red-600 shrink-0" />
-            <span>₹300+ पर फ्री डिलीवरी (within 2km) • ₹20/km अतिरिक्त</span>
+            <span>2km तक डिलीवरी मात्र ₹10 • 2km के बाद ₹20/km</span>
           </div>
         </div>
 

@@ -76,15 +76,17 @@ export function CartProvider({ children }) {
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  // Exact Delivery Calculation:
-  // - Free delivery above ₹300 (within 2km)
-  // - ₹20/km extra beyond 2km
+  // Delivery Calculation:
+  // - Base delivery charge = ₹10 (always applicable)
+  // - Distance logic: ≤ 2km -> ₹10, > 2km -> ₹10 + extra_km * ₹20
   const deliveryFee = calcFee(subtotal, deliveryDistance);
-  const packagingFee = subtotal > 0 ? 10 : 0;
-  const grandTotal = subtotal + deliveryFee + packagingFee;
+  // Packaging fee removed completely as per rules
+  const packagingFee = 0;
+  // Final bill: (Sum of all item totals) + Delivery Charge
+  const grandTotal = subtotal > 0 ? subtotal + deliveryFee : 0;
 
-  const isFreeDeliveryEligible = subtotal >= CAFE_INFO.freeDeliveryThreshold && deliveryDistance <= CAFE_INFO.freeDeliveryDistanceKm;
-  const amountNeededForFreeDelivery = Math.max(0, CAFE_INFO.freeDeliveryThreshold - subtotal);
+  const isFreeDeliveryEligible = false;
+  const amountNeededForFreeDelivery = 0;
 
   const openCart = () => {
     setIsCartOpen(true);

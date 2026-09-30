@@ -73,19 +73,13 @@ export default function CartModal() {
             </div>
           </div>
 
-          {/* Delivery Promo Notification */}
+          {/* Delivery Info Notification */}
           {cartItems.length > 0 && (
             <div className="bg-amber-50 px-5 py-2 border-b border-amber-100 flex items-center gap-2 text-xs text-amber-900 font-semibold font-hindi-body">
               <Truck className="w-4 h-4 text-red-600 shrink-0" />
-              {subtotal >= 300 ? (
-                <span className="text-emerald-800 font-bold">
-                  🎉 ₹300+ ऑर्डर: 2km तक मुफ्त होम डिलीवरी सक्रिय!
-                </span>
-              ) : (
-                <span>
-                  🚚 ₹{amountNeededForFreeDelivery} का और जोड़ें व 2km तक <strong>मुफ्त डिलीवरी</strong> पाएं!
-                </span>
-              )}
+              <span>
+                🚚 डिलीवरी शुल्क: 2km तक मात्र ₹10 • 2km के बाद ₹20/km
+              </span>
             </div>
           )}
 

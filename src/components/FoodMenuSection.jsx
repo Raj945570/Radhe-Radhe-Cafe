@@ -117,7 +117,7 @@ export default function FoodMenuSection({ id = "menu-section" }) {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-950 text-xs sm:text-sm font-semibold shadow-2xs">
             <Truck className="w-4 h-4 text-amber-700 shrink-0" />
             <span className="font-hindi-body">
-              ₹300 से अधिक के ऑर्डर पर <strong className="text-red-700 underline font-black">मुफ्त होम डिलीवरी (Free Delivery within 2km)</strong> • 2km के बाद मात्र ₹20/km
+              होम डिलीवरी सुविधा: <strong className="text-red-700 underline font-black">2km तक मात्र ₹10</strong> • 2km के बाद ₹20/km
             </span>
           </div>
         </div>
